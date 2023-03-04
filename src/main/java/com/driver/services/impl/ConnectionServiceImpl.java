@@ -47,15 +47,11 @@ public class ConnectionServiceImpl implements ConnectionService {
         if(serviceProviderId == Integer.MAX_VALUE){
             throw new Exception("Unable to connect");
         }
-        ServiceProvider serviceProvider=serviceProviderRepository2.findById(serviceProviderId).get();
+
 
         user.setConnected(true);
         user.setMaskedIp(country.getCode()+"."+serviceProviderId+"."+userId);
-        Connection connection=new Connection();
-        connection.setUser(user);
-        connection.setServiceProvider(serviceProvider);
-        user.getConnectionList().add(connection);
-        serviceProvider.getConnectionList().add(connection);
+
         userRepository2.save(user);
 
         return user;
