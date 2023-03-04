@@ -23,35 +23,42 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public User register(String username, String password, String countryName) throws Exception{
-        User user=new User();
+        Country country = new Country();
+        CountryName countryName1;
+        try {
+            countryName1 = CountryName.valueOf(countryName.toUpperCase());
+        }catch (Exception e){
+            throw new Exception("Country not found");
+        }
+        country.setCountryName(countryName1);
+        country.setCode(countryName1.toCode());
+
+        User user = new User();
         user.setUsername(username);
         user.setPassword(password);
         user.setConnected(false);
-
-        Country country=new Country();
-        country.setCountryName(CountryName.valueOf(countryName));
-        country.setCode(CountryName.valueOf(countryName).toCode());
+        user.setOriginalCountry(country);
+        user.setOriginalIp(country.getCode()+"."+user.getId());
 
         country.setUser(user);
 
-        user.setOriginalIp(country.getCode()+"."+user.getId());
-        user.setMaskedIp(null);
-        user.setOriginalCountry(country);
-        user.setCurrentCountry(countryName);
         userRepository3.save(user);
-        return user;
 
+        return user;
     }
 
     @Override
     public User subscribe(Integer userId, Integer serviceProviderId) {
-        User user=userRepository3.findById(userId).get();
-        ServiceProvider serviceProvider=serviceProviderRepository3.findById(serviceProviderId).get();
-        serviceProvider.getCountryList().add(user.getOriginalCountry());
-        serviceProvider.getUsers().add(user);
-        user.getOriginalCountry().setServiceProvider(serviceProvider);
+        User user = userRepository3.findById(userId).get();
+
+        ServiceProvider serviceProvider = serviceProviderRepository3.findById(serviceProviderId).get();
+
         user.getServiceProviderList().add(serviceProvider);
-       serviceProviderRepository3.save(serviceProvider);
+
+        serviceProvider.getUsers().add(user);
+
+        userRepository3.save(user);
+
         return user;
     }
 }
