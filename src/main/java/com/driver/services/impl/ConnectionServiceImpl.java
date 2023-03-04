@@ -73,7 +73,7 @@ public class ConnectionServiceImpl implements ConnectionService {
     @Override
     public User disconnect(int userId) throws Exception {
     User user=new User();
-    if(user.getConnected()==false){
+    if(!user.getConnected()){
         throw new Exception("Already disconnected");
     }
     user.setCurrentCountry(user.getOriginalCountry().getCountryName().toString());
