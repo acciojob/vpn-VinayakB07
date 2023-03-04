@@ -27,7 +27,7 @@ public class ConnectionServiceImpl implements ConnectionService {
         if(user.getConnected()){
             throw new Exception("Already connected");
         }
-        if(user.getCountry().getCountryName().equals(countryName)){
+        if(user.getOriginalCountry().getCountryName().equals(countryName)){
             return user;
         }
         Country country=new Country();
@@ -76,7 +76,7 @@ public class ConnectionServiceImpl implements ConnectionService {
     if(user.getConnected()==false){
         throw new Exception("Already disconnected");
     }
-    user.setCurrentCountry(user.getCountry().getCountryName().toString());
+    user.setCurrentCountry(user.getOriginalCountry().getCountryName().toString());
     user.setConnected(false);
     user.setMaskedIp(null);
     userRepository2.save(user);

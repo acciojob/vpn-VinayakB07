@@ -36,7 +36,7 @@ public class UserServiceImpl implements UserService {
 
         user.setOriginalIp(country.getCode()+"."+user.getId());
         user.setMaskedIp(null);
-        user.setCountry(country);
+        user.setOriginalCountry(country);
         user.setCurrentCountry(countryName);
         userRepository3.save(user);
         return user;
@@ -47,9 +47,9 @@ public class UserServiceImpl implements UserService {
     public User subscribe(Integer userId, Integer serviceProviderId) {
         User user=userRepository3.findById(userId).get();
         ServiceProvider serviceProvider=serviceProviderRepository3.findById(serviceProviderId).get();
-        serviceProvider.getCountryList().add(user.getCountry());
+        serviceProvider.getCountryList().add(user.getOriginalCountry());
         serviceProvider.getUsers().add(user);
-        user.getCountry().setServiceProvider(serviceProvider);
+        user.getOriginalCountry().setServiceProvider(serviceProvider);
         user.getServiceProviderList().add(serviceProvider);
        serviceProviderRepository3.save(serviceProvider);
         return user;
