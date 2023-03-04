@@ -23,22 +23,23 @@ public class ConnectionServiceImpl implements ConnectionService {
     public User connect(int userId, String countryName) throws Exception{
         User user = userRepository2.findById(userId).get();
         countryName = countryName.toUpperCase();
-
+        Country country=new Country();
+        country.setCountryName(CountryName.valueOf(countryName));
+        country.setCode(CountryName.valueOf(countryName).toCode());
         if(user.getConnected()){
             throw new Exception("Already connected");
         }
-        if(user.getOriginalCountry().getCountryName().equals(CountryName.valueOf(countryName))){
+        if(user.getOriginalCountry().getCountryName().equals(country.getCountryName())){
             return user;
         }
         List<ServiceProvider> serviceProviderList = user.getServiceProviderList();
         int serviceProviderId = Integer.MAX_VALUE;
         for(ServiceProvider serviceProvider : serviceProviderList){
             List<Country> countryList = serviceProvider.getCountryList();
-            for(Country country : countryList){
-                if(country.getCountryName().equals(CountryName.valueOf(countryName))){
-                    if(serviceProvider.getId() < serviceProviderId){
-                        serviceProviderId = serviceProvider.getId();
-
+            for(Country country1:countryList){
+                if(country1.getCountryName().equals(country.getCountryName())){
+                    if(serviceProvider.getId()<serviceProviderId){
+                        serviceProviderId=serviceProvider.getId();
                     }
                 }
             }
@@ -46,10 +47,15 @@ public class ConnectionServiceImpl implements ConnectionService {
         if(serviceProviderId == Integer.MAX_VALUE){
             throw new Exception("Unable to connect");
         }
+        ServiceProvider serviceProvider=serviceProviderRepository2.findById(serviceProviderId).get();
 
         user.setConnected(true);
-        user.setMaskedIp(CountryName.valueOf(countryName).toCode()+"."+serviceProviderId+"."+userId);
-
+        user.setMaskedIp(country.getCode()+"."+serviceProviderId+"."+userId);
+        Connection connection=new Connection();
+        connection.setUser(user);
+        connection.setServiceProvider(serviceProvider);
+        user.getConnectionList().add(connection);
+        serviceProvider.getConnectionList().add(connection);
         userRepository2.save(user);
 
         return user;
