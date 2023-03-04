@@ -46,6 +46,11 @@ public class AdminServiceImpl implements AdminService {
     public ServiceProvider addCountry(int serviceProviderId, String countryName) throws Exception{
         ServiceProvider serviceProvider=serviceProviderRepository1.findById(serviceProviderId).get();
         Country country=new Country();
+        try {
+            country.setCountryName(CountryName.valueOf(countryName));
+        }catch (Exception e){
+            throw new Exception("Country not found");
+        }
         country.setCountryName(CountryName.valueOf(countryName));
         country.setCode(CountryName.valueOf(countryName).toCode());
         country.setServiceProvider(serviceProvider);

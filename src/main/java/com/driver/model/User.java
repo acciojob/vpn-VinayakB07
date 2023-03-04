@@ -20,6 +20,17 @@ public class User {
     private String maskedIp;
 
     private boolean connected;
+    private String currentCountry;
+
+
+
+    public String getCurrentCountry() {
+        return currentCountry;
+    }
+
+    public void setCurrentCountry(String currentCountry) {
+        this.currentCountry = currentCountry;
+    }
 
     @OneToOne
     @JoinColumn
@@ -74,7 +85,7 @@ public class User {
         this.maskedIp = maskedIp;
     }
 
-    public boolean isConnected() {
+    public boolean getConnected() {
         return connected;
     }
 

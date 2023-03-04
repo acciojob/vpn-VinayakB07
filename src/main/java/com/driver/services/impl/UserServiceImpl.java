@@ -33,9 +33,11 @@ public class UserServiceImpl implements UserService {
         country.setCode(CountryName.valueOf(countryName).toCode());
 
         country.setUser(user);
-        user.setOriginalIp(country.getCode());
-        user.setMaskedIp(country.getCode());
+
+        user.setOriginalIp(country.getCode()+"."+user.getId());
+        user.setMaskedIp(null);
         user.setCountry(country);
+        user.setCurrentCountry(countryName);
         userRepository3.save(user);
         return user;
 
@@ -49,7 +51,7 @@ public class UserServiceImpl implements UserService {
         serviceProvider.getUsers().add(user);
         user.getCountry().setServiceProvider(serviceProvider);
         user.getServiceProviderList().add(serviceProvider);
-        userRepository3.save(user);
+       serviceProviderRepository3.save(serviceProvider);
         return user;
     }
 }
