@@ -23,9 +23,7 @@ public class ConnectionServiceImpl implements ConnectionService {
     public User connect(int userId, String countryName) throws Exception{
         User user = userRepository2.findById(userId).get();
         countryName = countryName.toUpperCase();
-        Country country=new Country();
-        country.setCountryName(CountryName.valueOf(countryName));
-        country.setCode(CountryName.valueOf(countryName).toCode());
+
         if(user.getConnected()){
             throw new Exception("Already connected");
         }
@@ -35,12 +33,19 @@ public class ConnectionServiceImpl implements ConnectionService {
         List<ServiceProvider> serviceProviderList = user.getServiceProviderList();
         int serviceProviderId = Integer.MAX_VALUE;
         for(ServiceProvider serviceProvider : serviceProviderList){
-            if(!serviceProvider.getCountryList().contains(country)){
-                throw new Exception("Unable to connect");
+            List<Country> countryList = serviceProvider.getCountryList();
+            for(Country country : countryList){
+                if(country.getCountryName().equals(CountryName.valueOf(countryName))){
+                    if(serviceProvider.getId() < serviceProviderId){
+                        serviceProviderId = serviceProvider.getId();
+
+                    }
+                }
             }
-
         }
-
+        if(serviceProviderId == Integer.MAX_VALUE){
+            throw new Exception("Unable to connect");
+        }
 
         user.setConnected(true);
         user.setMaskedIp(CountryName.valueOf(countryName).toCode()+"."+serviceProviderId+"."+userId);
