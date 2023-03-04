@@ -29,32 +29,45 @@ public class ConnectionServiceImpl implements ConnectionService {
         if(user.getConnected()){
             throw new Exception("Already connected");
         }
-        if(user.getOriginalCountry().getCountryName().equals(country.getCountryName())){
-            return user;
+        if(countryName.equalsIgnoreCase(user.getOriginalCountry().getCountryName().toString())){
+            return  user;
         }
-        List<ServiceProvider> serviceProviderList = user.getServiceProviderList();
-        int serviceProviderId = Integer.MAX_VALUE;
-        for(ServiceProvider serviceProvider : serviceProviderList){
-            List<Country> countryList = serviceProvider.getCountryList();
-            for(Country country1:countryList){
-                if(country1.getCountryName().equals(country.getCountryName())){
-                    if(serviceProvider.getId()<serviceProviderId){
-                        serviceProviderId=serviceProvider.getId();
-                    }
+        ServiceProvider minIdServiceProvider=null;
+        int minId =Integer.MAX_VALUE;
+        String countryCode=null;
+        for(ServiceProvider serviceProvider:user.getServiceProviderList()){
+            for (Country country1:serviceProvider.getCountryList()){
+                if(countryName.equalsIgnoreCase(country1.getCountryName().toString()) && serviceProvider.getId()<minId){
+                    minIdServiceProvider=serviceProvider;
+                    minId=serviceProvider.getId();
+                    countryCode=country.getCode();
                 }
             }
+
         }
-        if(serviceProviderId == Integer.MAX_VALUE){
+        if (minIdServiceProvider==null){//no providers give connection to given country
             throw new Exception("Unable to connect");
         }
 
+        Connection connection=new Connection();
+        connection.setUser(user);
+        connection.setServiceProvider(minIdServiceProvider);
 
+
+        minIdServiceProvider.getConnectionList().add(connection);
+
+        String maskedIP=countryCode+"."+minIdServiceProvider.getId()+"."+user.getId();
+        user.setMaskedIp(maskedIP);
         user.setConnected(true);
-        user.setMaskedIp(country.getCode()+"."+serviceProviderId+"."+userId);
+        user.getConnectionList().add(connection);
+
+
+        serviceProviderRepository2.save(minIdServiceProvider);
+
 
         userRepository2.save(user);
 
-        return user;
+        return  user;
     }
     @Override
     public User disconnect(int userId) throws Exception {
